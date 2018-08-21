@@ -8,7 +8,7 @@
 		"loglevel" : "debug",
 
 		"_executor_comment": "Execute plugin. Possible choices: mock, ssh",
-		"executor" : "ssh",
+		"executor" : "glusterd",
 
 		"_db_comment": "Database file name",
 		"db" : "heketi.db",
@@ -20,6 +20,11 @@
 			"keyfile" : "config/insecure_private_key",
 			"user" : "vagrant",
 			"sudo" : true
+		},
+		"glusterd" : {
+			"url_schema" : "http",
+			"peer_port" : "24008",
+			"client_port" : "24007"
 		},
 		
 		"_auto_create_block_hosting_volume": "Creates Block Hosting volumes automatically if not found or exsisting volume exhausted",

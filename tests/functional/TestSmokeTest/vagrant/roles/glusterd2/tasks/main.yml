@@ -1,0 +1,32 @@
+- name: install-repo-glusterfs-nighthly-master
+  get_url:
+    url:  http://artifacts.ci.centos.org/gluster/nightly/master.repo
+    dest: /etc/yum.repos.d/glusterfs-nightly-master.repo
+  become: true
+
+- name: install-repo-glusterd2-nighthly-master
+  get_url:
+    url:  http://artifacts.ci.centos.org/gluster/gd2-nightly/gd2-master.repo
+    dest: /etc/yum.repos.d/gd2-nightly-master.repo
+  become: true
+
+- name: install glusterfs
+  yum: name={{ item }} state=latest
+  with_items:
+    - glusterfs-server
+    - glusterfs-fuse
+    - glusterfs-api
+    - glusterd2
+
+- name: configure glusterd2
+  lineinfile:
+    path: /etc/glusterd2/glusterd2.toml
+    regexp: 'restauth\s*='
+    line: 'restauth = false'
+
+- name: start glusterd2
+  service: name=glusterd2 state=started enabled=yes
+
+- name: wait for opened glusterd2 port
+  wait_for:
+    port: 24007
