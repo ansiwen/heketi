@@ -124,7 +124,7 @@ func NewApp(conf *GlusterFSConfig) *App {
 		case "ssh", "":
 			executor, err = sshexec.NewSshExecutor(&app.conf.SshConfig)
 		case "glusterd":
-			executor, err = glusterd.InitRESTClient(&app.conf.GlusterdConfig)
+			executor, err = glusterd.NewExecutor(&app.conf.GlusterdConfig)
 		default:
 			return nil
 		}

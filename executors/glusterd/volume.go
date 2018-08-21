@@ -18,10 +18,10 @@ import (
 	"github.com/lpabon/godbc"
 )
 
-func (g *GlusterdExecutor) prepareBrick(inSet int, brick []executors.BrickInfo) []api.BrickReq {
+func (g *executor) prepareBrick(inSet int, brick []executors.BrickInfo) []api.BrickReq {
 	var bricks []string
 	bricks = make([]string, inSet)
-	peers, err := g.Client.Peers()
+	peers, err := g.client.Peers()
 	if err != nil {
 		return nil
 	}
@@ -48,7 +48,7 @@ func (g *GlusterdExecutor) prepareBrick(inSet int, brick []executors.BrickInfo) 
 	}
 	return Bricks
 }
-func (g *GlusterdExecutor) VolumeCreate(host string,
+func (g *executor) VolumeCreate(host string,
 	volume *executors.VolumeRequest) (*executors.Volume, error) {
 
 	godbc.Require(volume != nil)
@@ -125,28 +125,28 @@ func (g *GlusterdExecutor) VolumeCreate(host string,
 	req.Subvols = subvols
 	req.Force = true
 
-	vol, err := g.Client.VolumeCreate(req)
+	vol, err := g.client.VolumeCreate(req)
 	if err != nil {
 		return nil, err
 	}
 	//set volume options
 	err = g.createVolumeOptionsCommand(volume)
 	if err != nil {
-		g.Client.VolumeDelete(volume.Name)
+		g.client.VolumeDelete(volume.Name)
 		return nil, err
 	}
 
 	//TODO need to fill all 17 fields
-	err = g.Client.VolumeStart(vol.Name, true)
+	err = g.client.VolumeStart(vol.Name, true)
 	if err != nil {
-		g.Client.VolumeDelete(vol.Name)
+		g.client.VolumeDelete(vol.Name)
 		return nil, err
 	}
 
 	return g.formatVolumeResp(api.VolumeInfo(vol)), nil
 }
 
-func (g *GlusterdExecutor) createVolumeOptionsCommand(volume *executors.VolumeRequest) error {
+func (g *executor) createVolumeOptionsCommand(volume *executors.VolumeRequest) error {
 
 	// Go through all the Options and create volume set command
 
@@ -156,7 +156,7 @@ func (g *GlusterdExecutor) createVolumeOptionsCommand(volume *executors.VolumeRe
 			vopt[volOption] = volume.GlusterVolumeOptions[op+1]
 		}
 	}
-	err := g.Client.VolumeSet(volume.Name, api.VolOptionReq{
+	err := g.client.VolumeSet(volume.Name, api.VolOptionReq{
 		Options: vopt,
 		//TODO do we need to set this advance flags in heketi
 		Advanced: true,
@@ -167,20 +167,20 @@ func (g *GlusterdExecutor) createVolumeOptionsCommand(volume *executors.VolumeRe
 
 }
 
-func (g *GlusterdExecutor) VolumeDestroy(host string, volume string) error {
+func (g *executor) VolumeDestroy(host string, volume string) error {
 	godbc.Require(host != "")
 	godbc.Require(volume != "")
 	g.createClient(host)
 	// First stop the volume, then delete it
 	//TODO stop forcefully
-	err := g.Client.VolumeStop(volume)
+	err := g.client.VolumeStop(volume)
 
 	if err != nil {
 		logger.LogError("Unable to stop volume %v: %v", volume, err)
 		return err
 	}
 	//TODO delete forcefully
-	err = g.Client.VolumeDelete(volume)
+	err = g.client.VolumeDelete(volume)
 	if err != nil {
 		logger.LogError("Unable to delete volume %v: %v", volume, err)
 		return logger.Err(fmt.Errorf("Unable to delete volume %v: %v", volume, err))
@@ -189,12 +189,12 @@ func (g *GlusterdExecutor) VolumeDestroy(host string, volume string) error {
 	return nil
 }
 
-func (g *GlusterdExecutor) VolumeInfo(host string, volume string) (*executors.Volume, error) {
+func (g *executor) VolumeInfo(host string, volume string) (*executors.Volume, error) {
 
 	godbc.Require(volume != "")
 	godbc.Require(host != "")
 	g.createClient(host)
-	volumes, err := g.Client.Volumes(volume, nil)
+	volumes, err := g.client.Volumes(volume, nil)
 	if err != nil {
 		return nil, fmt.Errorf("Unable to get volume info of volume name: %v", volume)
 	}
@@ -203,7 +203,7 @@ func (g *GlusterdExecutor) VolumeInfo(host string, volume string) (*executors.Vo
 	return g.formatVolumeResp(api.VolumeInfo(volumes[0])), nil
 }
 
-func (g *GlusterdExecutor) VolumeExpand(host string,
+func (g *executor) VolumeExpand(host string,
 	volume *executors.VolumeRequest) (*executors.Volume, error) {
 
 	godbc.Require(volume != nil)
@@ -230,7 +230,7 @@ func (g *GlusterdExecutor) VolumeExpand(host string,
 	}
 	Bricks := g.prepareBrick(inSet, volume.Bricks)
 	req.Bricks = Bricks
-	vol, err := g.Client.VolumeExpand(volume.Name, req)
+	vol, err := g.client.VolumeExpand(volume.Name, req)
 
 	if err != nil {
 		return nil, err
@@ -254,7 +254,7 @@ func (g *GlusterdExecutor) VolumeExpand(host string,
 	return g.formatVolumeResp(api.VolumeInfo(vol)), nil
 }
 
-func (g *GlusterdExecutor) formatVolumeResp(vol api.VolumeInfo) *executors.Volume {
+func (g *executor) formatVolumeResp(vol api.VolumeInfo) *executors.Volume {
 	volumeResp := &executors.Volume{}
 	volumeResp.VolumeName = vol.Name
 	volumeResp.ID = vol.ID.String()

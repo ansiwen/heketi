@@ -12,12 +12,12 @@ import (
 	"github.com/heketi/heketi/executors"
 )
 
-func (g *GlusterdExecutor) BlockVolumeCreate(host string,
+func (g *executor) BlockVolumeCreate(host string,
 	volume *executors.BlockVolumeRequest) (*executors.BlockVolumeInfo, error) {
 
 	return nil, executors.NotSupportedError
 }
 
-func (g *GlusterdExecutor) BlockVolumeDestroy(host string, blockHostingVolumeName string, blockVolumeName string) error {
+func (g *executor) BlockVolumeDestroy(host string, blockHostingVolumeName string, blockVolumeName string) error {
 	return executors.NotSupportedError
 }

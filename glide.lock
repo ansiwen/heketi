@@ -53,6 +53,17 @@ imports:
   - swagger
 - name: github.com/ghodss/yaml
   version: 73d445a93680fa1a78ae23a5839bad48f32ba1ee
+- name: github.com/gluster/glusterd2
+  version: 381f44f6b9ec8a5f790964a10f254a17ea729c6d
+  subpackages:
+  - pkg/api
+  - pkg/restclient
+  - plugins/bitrot/api
+  - plugins/device/api
+  - plugins/events/api
+  - plugins/georeplication/api
+  - plugins/glustershd/api
+  - plugins/smartvol/api
 - name: github.com/go-openapi/jsonpointer
   version: 46af16f9f7b149af66e5d1bd010e3574dc06de98
 - name: github.com/go-openapi/jsonreference
@@ -106,6 +117,8 @@ imports:
   - pbuti
 - name: github.com/mitchellh/go-wordwrap
   version: ad45545899c7b13c020ea92b2072220eefad42b8
+- name: github.com/pborman/uuid
+  version: ca53cad383cad2479bbba7f7a1a05797ec1386e4
 - name: github.com/prometheus/client_golang
   version: c5b7fccd204277076155f10851dad72b76a49317
   subpackages:

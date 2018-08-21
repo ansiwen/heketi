@@ -12,6 +12,7 @@ package glusterd
 import (
 	"errors"
 
+	"github.com/gluster/glusterd2/pkg/api"
 	"github.com/lpabon/godbc"
 )
 
@@ -19,14 +20,17 @@ import (
 //currently its hardcoded
 
 // :TODO: Rename this function to NodeInit or something
-func (g *GlusterdExecutor) PeerProbe(host, newnode string) error {
+func (g *executor) PeerProbe(host, newnode string) error {
 
 	godbc.Require(host != "")
 	godbc.Require(newnode != "")
 	g.createClient(host)
 	logger.Info("Probing: %v -> %v", host, newnode)
 	// create the commands
-	_, err := g.Client.PeerAdd(newnode + g.Config.ClientPORT)
+	peerAddReq := api.PeerAddReq{
+		Addresses: []string{newnode + ":" + g.config.ClientPort},
+	}
+	_, err := g.client.PeerAdd(peerAddReq)
 	if err != nil {
 		return err
 	}
@@ -49,7 +53,7 @@ func (g *GlusterdExecutor) PeerProbe(host, newnode string) error {
 	return nil
 }
 
-func (g *GlusterdExecutor) PeerDetach(host, detachnode string) error {
+func (g *executor) PeerDetach(host, detachnode string) error {
 	godbc.Require(host != "")
 	godbc.Require(detachnode != "")
 	g.createClient(host)
@@ -58,14 +62,14 @@ func (g *GlusterdExecutor) PeerDetach(host, detachnode string) error {
 	// create the commands
 	logger.Info("Detaching node %v", detachnode)
 	//list nodes in cluster
-	peerlist, err := g.Client.Peers()
+	peerlist, err := g.client.Peers()
 	if err != nil {
 		logger.Err(err)
 		return err
 	}
 	for _, peer := range peerlist {
 		for _, addr := range peer.PeerAddresses {
-			if addr == detachnode+g.Config.ClientPORT {
+			if addr == detachnode+g.config.ClientPort {
 				peerid = peer.ID.String()
 			}
 		}
@@ -74,7 +78,7 @@ func (g *GlusterdExecutor) PeerDetach(host, detachnode string) error {
 		logger.LogError("not able to find peer info for %s", detachnode)
 		return errors.New("unable to detatch peer")
 	}
-	err = g.Client.PeerRemove(peerid)
+	err = g.client.PeerRemove(peerid)
 	if err != nil {
 		logger.Err(err)
 	}
@@ -82,13 +86,13 @@ func (g *GlusterdExecutor) PeerDetach(host, detachnode string) error {
 	return nil
 }
 
-func (g *GlusterdExecutor) GlusterdCheck(host string) error {
+func (g *executor) GlusterdCheck(host string) error {
 	godbc.Require(host != "")
 
 	logger.Info("Check Glusterd service status in node %v", host)
 	g.createClient(host)
 	//TODO change this to health check URL
-	_, err := g.Client.Peers()
+	_, err := g.client.Peers()
 	if err != nil {
 		logger.Err(err)
 		return err

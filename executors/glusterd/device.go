@@ -16,14 +16,6 @@ import (
 	"github.com/heketi/heketi/executors"
 )
 
-const (
-	VGDISPLAY_SIZE_KB                  = 11
-	VGDISPLAY_PHYSICAL_EXTENT_SIZE     = 12
-	VGDISPLAY_TOTAL_NUMBER_EXTENTS     = 13
-	VGDISPLAY_ALLOCATED_NUMBER_EXTENTS = 14
-	VGDISPLAY_FREE_NUMBER_EXTENTS      = 15
-)
-
 // Read:
 // https://access.redhat.com/documentation/en-US/Red_Hat_Storage/3.1/html/Administration_Guide/Brick_Configuration.html
 //
@@ -50,23 +42,23 @@ type deviceInfo struct {
 	Used          bool   `json:"used"`
 }
 
-func (g *GlusterdExecutor) DeviceSetup(host, device, vgid string, destroy bool) (*executors.DeviceInfo, error) {
+func (g *executor) DeviceSetup(host, device, vgid string, destroy bool) (*executors.DeviceInfo, error) {
 	g.createClient(host)
 	peerid := ""
-	peerlist, err := g.Client.Peers()
+	peerlist, err := g.client.Peers()
 	if err != nil {
 		logger.Err(err)
 		return nil, err
 	}
 	for _, peer := range peerlist {
 		for _, addr := range peer.PeerAddresses {
-			if addr == host+g.Config.ClientPORT {
+			if addr == host+g.config.ClientPort {
 				peerid = peer.ID.String()
 			}
 		}
 	}
 	//TODO implement device delete in failed scenario?
-	dev, err := g.Client.DeviceAdd(peerid, device)
+	dev, err := g.client.DeviceAdd(peerid, device)
 	if err != nil {
 		logger.Err(err)
 		return nil, err
@@ -83,7 +75,7 @@ func (g *GlusterdExecutor) DeviceSetup(host, device, vgid string, destroy bool) 
 		for _, d := range devices {
 			if device == d.Name {
 				info.ExtentSize = d.ExtentSize
-				info.Size = d.AvailableSize
+				info.TotalSize = d.AvailableSize
 			}
 		}
 	}
@@ -94,13 +86,13 @@ func (g *GlusterdExecutor) DeviceSetup(host, device, vgid string, destroy bool) 
 	return info, nil
 }
 
-func (g *GlusterdExecutor) GetDeviceInfo(host, device, vgid string) (d *executors.DeviceInfo, e error) {
+func (g *executor) GetDeviceInfo(host, device, vgid string) (d *executors.DeviceInfo, e error) {
 	//TODO need to replace this function by listing device
 	d = &executors.DeviceInfo{}
 
 	g.createClient(host)
 
-	peerlist, err := g.Client.Peers()
+	peerlist, err := g.client.Peers()
 	if err != nil {
 		logger.Err(err)
 		return nil, err
@@ -109,7 +101,7 @@ func (g *GlusterdExecutor) GetDeviceInfo(host, device, vgid string) (d *executor
 	var info = new(executors.DeviceInfo)
 	for _, peer := range peerlist {
 		for _, addr := range peer.PeerAddresses {
-			if addr == host+g.Config.ClientPORT {
+			if addr == host+g.config.ClientPort {
 				if _, exist := peer.Metadata["_devices"]; exist {
 
 					err = json.Unmarshal([]byte(peer.Metadata["_devices"]), &devices)
@@ -120,7 +112,7 @@ func (g *GlusterdExecutor) GetDeviceInfo(host, device, vgid string) (d *executor
 					for _, d := range devices {
 						if device == d.Name {
 							info.ExtentSize = d.ExtentSize
-							info.Size = d.AvailableSize
+							info.TotalSize = d.AvailableSize
 							break
 						}
 					}
@@ -137,7 +129,7 @@ func (g *GlusterdExecutor) GetDeviceInfo(host, device, vgid string) (d *executor
 	return info, nil
 }
 
-func (g *GlusterdExecutor) DeviceTeardown(host, device, vgid string) error {
+func (g *executor) DeviceTeardown(host, device, vgid string) error {
 	//TODO need to implement this api
 	return executors.NotSupportedError
 }

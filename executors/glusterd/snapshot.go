@@ -13,19 +13,19 @@ import (
 	"github.com/heketi/heketi/executors"
 )
 
-func (g *GlusterdExecutor) snapshotActivate(host string, snapshot string) error {
+func (g *executor) snapshotActivate(host string, snapshot string) error {
 	return executors.NotSupportedError
 }
 
-func (g *GlusterdExecutor) SnapshotCloneVolume(host string, vcr *executors.SnapshotCloneRequest) (*executors.Volume, error) {
+func (g *executor) SnapshotCloneVolume(host string, vcr *executors.SnapshotCloneRequest) (*executors.Volume, error) {
 	return nil, executors.NotSupportedError
 }
 
-func (g *GlusterdExecutor) SnapshotCloneBlockVolume(host string, vcr *executors.SnapshotCloneRequest) (*executors.BlockVolumeInfo, error) {
+func (g *executor) SnapshotCloneBlockVolume(host string, vcr *executors.SnapshotCloneRequest) (*executors.BlockVolumeInfo, error) {
 	// TODO: cloning of block volume is not implemented yet
 	return nil, executors.NotSupportedError
 }
 
-func (g *GlusterdExecutor) SnapshotDestroy(host string, snapshot string) error {
+func (g *executor) SnapshotDestroy(host string, snapshot string) error {
 	return executors.NotSupportedError
 }

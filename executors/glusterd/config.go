@@ -2,20 +2,20 @@ package glusterd
 
 import (
 	"github.com/gluster/glusterd2/pkg/restclient"
+	"github.com/heketi/heketi/executors"
 	"github.com/heketi/heketi/executors/cmdexec"
 	"github.com/heketi/heketi/pkg/utils"
 )
 
-type GlusterdExecutor struct {
-	Client *restclient.Client
-	Config GlusterdConfig
+type executor struct {
+	client *restclient.Client
+	config Config
 	cmdexec.CmdExecutor
 }
 
-type GlusterdConfig struct {
-	SCHEMA     string `json:"url_schema"`
-	PeerPORT   string `json:"peer_port"`
-	ClientPORT string `json:"client_port"`
+type Config struct {
+	Schema     string `json:"url_schema"`
+	ClientPort string `json:"client_port"`
 	CertPath   string `json:"cert_path"`
 	Insecure   bool   `json:"insecure"`
 }
@@ -24,15 +24,15 @@ var (
 	logger = utils.NewLogger("[glusterd]", utils.LEVEL_DEBUG)
 )
 
-func InitRESTClient(config *GlusterdConfig) (*GlusterdExecutor, error) {
-	g := GlusterdExecutor{}
+func NewExecutor(config *Config) (executors.Executor, error) {
+	g := executor{}
 	//TODO add code read certfile and pass it
-	g.Config = *config
+	g.config = *config
 	return &g, nil
 }
 
-func (g *GlusterdExecutor) createClient(host string) {
+func (g *executor) createClient(host string) {
 	//add default ip if not present
-	url := g.Config.SCHEMA + host + g.Config.PeerPORT
-	g.Client = restclient.New(url, "", "", g.Config.CertPath, g.Config.Insecure)
+	url := g.config.Schema + "://" + host + ":" + g.config.ClientPort
+	g.client = restclient.New(url, "", "", g.config.CertPath, g.config.Insecure)
 }
