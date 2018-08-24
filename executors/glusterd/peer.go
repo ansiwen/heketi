@@ -21,6 +21,7 @@ import (
 
 // :TODO: Rename this function to NodeInit or something
 func (g *executor) PeerProbe(host, newnode string) error {
+	logger.Debug("BEGIN")
 
 	godbc.Require(host != "")
 	godbc.Require(newnode != "")
@@ -54,6 +55,7 @@ func (g *executor) PeerProbe(host, newnode string) error {
 }
 
 func (g *executor) PeerDetach(host, detachnode string) error {
+	logger.Debug("BEGIN")
 	godbc.Require(host != "")
 	godbc.Require(detachnode != "")
 	g.createClient(host)
@@ -87,6 +89,7 @@ func (g *executor) PeerDetach(host, detachnode string) error {
 }
 
 func (g *executor) GlusterdCheck(host string) error {
+	logger.Debug("BEGIN")
 	godbc.Require(host != "")
 
 	logger.Info("Check Glusterd service status in node %v", host)

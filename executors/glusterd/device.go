@@ -43,6 +43,8 @@ type deviceInfo struct {
 }
 
 func (g *executor) DeviceSetup(host, device, vgid string, destroy bool) (*executors.DeviceInfo, error) {
+	logger.Debug("BEGIN")
+	logger.Debug("host: %s - port: %s", host, g.config.ClientPort)
 	g.createClient(host)
 	peerid := ""
 	peerlist, err := g.client.Peers()
@@ -87,6 +89,7 @@ func (g *executor) DeviceSetup(host, device, vgid string, destroy bool) (*execut
 }
 
 func (g *executor) GetDeviceInfo(host, device, vgid string) (d *executors.DeviceInfo, e error) {
+	logger.Debug("BEGIN")
 	//TODO need to replace this function by listing device
 	d = &executors.DeviceInfo{}
 
@@ -130,6 +133,7 @@ func (g *executor) GetDeviceInfo(host, device, vgid string) (d *executors.Device
 }
 
 func (g *executor) DeviceTeardown(host, device, vgid string) error {
+	logger.Debug("BEGIN")
 	//TODO need to implement this api
 	return executors.NotSupportedError
 }

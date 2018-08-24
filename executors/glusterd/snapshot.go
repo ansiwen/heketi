@@ -14,18 +14,22 @@ import (
 )
 
 func (g *executor) snapshotActivate(host string, snapshot string) error {
+	logger.Debug("BEGIN")
 	return executors.NotSupportedError
 }
 
 func (g *executor) SnapshotCloneVolume(host string, vcr *executors.SnapshotCloneRequest) (*executors.Volume, error) {
+	logger.Debug("BEGIN")
 	return nil, executors.NotSupportedError
 }
 
 func (g *executor) SnapshotCloneBlockVolume(host string, vcr *executors.SnapshotCloneRequest) (*executors.BlockVolumeInfo, error) {
+	logger.Debug("BEGIN")
 	// TODO: cloning of block volume is not implemented yet
 	return nil, executors.NotSupportedError
 }
 
 func (g *executor) SnapshotDestroy(host string, snapshot string) error {
+	logger.Debug("BEGIN")
 	return executors.NotSupportedError
 }

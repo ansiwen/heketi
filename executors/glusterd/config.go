@@ -25,6 +25,7 @@ var (
 )
 
 func NewExecutor(config *Config) (executors.Executor, error) {
+	logger.Debug("BEGIN")
 	g := executor{}
 	//TODO add code read certfile and pass it
 	g.config = *config

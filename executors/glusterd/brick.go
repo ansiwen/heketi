@@ -15,6 +15,7 @@ import (
 
 func (g *executor) BrickCreate(host string,
 	brick *executors.BrickRequest) (*executors.BrickInfo, error) {
+	logger.Debug("BEGIN")
 	b := &executors.BrickInfo{
 		Path: brick.Path,
 	}
@@ -23,6 +24,7 @@ func (g *executor) BrickCreate(host string,
 
 func (g *executor) BrickDestroy(host string,
 	brick *executors.BrickRequest) (bool, error) {
+	logger.Debug("BEGIN")
 
 	return false, executors.NotSupportedError
 }

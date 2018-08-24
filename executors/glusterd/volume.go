@@ -19,6 +19,7 @@ import (
 )
 
 func (g *executor) prepareBrick(inSet int, brick []executors.BrickInfo) []api.BrickReq {
+	logger.Debug("BEGIN")
 	var bricks []string
 	bricks = make([]string, inSet)
 	peers, err := g.client.Peers()
@@ -50,6 +51,7 @@ func (g *executor) prepareBrick(inSet int, brick []executors.BrickInfo) []api.Br
 }
 func (g *executor) VolumeCreate(host string,
 	volume *executors.VolumeRequest) (*executors.Volume, error) {
+	logger.Debug("BEGIN")
 
 	godbc.Require(volume != nil)
 	godbc.Require(host != "")
@@ -147,6 +149,7 @@ func (g *executor) VolumeCreate(host string,
 }
 
 func (g *executor) createVolumeOptionsCommand(volume *executors.VolumeRequest) error {
+	logger.Debug("BEGIN")
 
 	// Go through all the Options and create volume set command
 
@@ -168,6 +171,7 @@ func (g *executor) createVolumeOptionsCommand(volume *executors.VolumeRequest) e
 }
 
 func (g *executor) VolumeDestroy(host string, volume string) error {
+	logger.Debug("BEGIN")
 	godbc.Require(host != "")
 	godbc.Require(volume != "")
 	g.createClient(host)
@@ -190,7 +194,7 @@ func (g *executor) VolumeDestroy(host string, volume string) error {
 }
 
 func (g *executor) VolumeInfo(host string, volume string) (*executors.Volume, error) {
-
+	logger.Debug("BEGIN")
 	godbc.Require(volume != "")
 	godbc.Require(host != "")
 	g.createClient(host)
@@ -205,6 +209,7 @@ func (g *executor) VolumeInfo(host string, volume string) (*executors.Volume, er
 
 func (g *executor) VolumeExpand(host string,
 	volume *executors.VolumeRequest) (*executors.Volume, error) {
+	logger.Debug("BEGIN")
 
 	godbc.Require(volume != nil)
 	godbc.Require(host != "")
@@ -255,6 +260,7 @@ func (g *executor) VolumeExpand(host string,
 }
 
 func (g *executor) formatVolumeResp(vol api.VolumeInfo) *executors.Volume {
+	logger.Debug("BEGIN")
 	volumeResp := &executors.Volume{}
 	volumeResp.VolumeName = vol.Name
 	volumeResp.ID = vol.ID.String()

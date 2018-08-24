@@ -14,10 +14,12 @@ import (
 
 func (g *executor) BlockVolumeCreate(host string,
 	volume *executors.BlockVolumeRequest) (*executors.BlockVolumeInfo, error) {
+	logger.Debug("BEGIN")
 
 	return nil, executors.NotSupportedError
 }
 
 func (g *executor) BlockVolumeDestroy(host string, blockHostingVolumeName string, blockVolumeName string) error {
+	logger.Debug("BEGIN")
 	return executors.NotSupportedError
 }
