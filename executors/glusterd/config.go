@@ -35,5 +35,11 @@ func NewExecutor(config *Config) (executors.Executor, error) {
 func (g *executor) createClient(host string) {
 	//add default ip if not present
 	url := g.config.Schema + "://" + host + ":" + g.config.ClientPort
-	g.client = restclient.New(url, "", "", g.config.CertPath, g.config.Insecure)
+	client, err := restclient.New(url, "", "", g.config.CertPath, g.config.Insecure)
+	if err != nil {
+		g.client = nil
+		logger.LogError("Creating restclient failed: %v", err)
+	} else {
+		g.client = client
+	}
 }
