@@ -12,6 +12,7 @@ package glusterd
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	"github.com/heketi/heketi/executors"
 )
@@ -52,19 +53,27 @@ func (g *executor) DeviceSetup(host, device, vgid string, destroy bool) (*execut
 		logger.Err(err)
 		return nil, err
 	}
+	hostPort := host + ":" + g.config.ClientPort
 	for _, peer := range peerlist {
-		for _, addr := range peer.PeerAddresses {
-			if addr == host+g.config.ClientPort {
+		for _, addr := range peer.ClientAddresses {
+			if addr == hostPort {
 				peerid = peer.ID.String()
+				break
 			}
 		}
 	}
 	//TODO implement device delete in failed scenario?
+	if peerid == "" {
+		msg := fmt.Sprintf("host %s is none of the peers", hostPort)
+		logger.LogError(msg)
+		return nil, errors.New(msg)
+	}
 	dev, err := g.client.DeviceAdd(peerid, device)
 	if err != nil {
-		logger.Err(err)
+		logger.LogError("DeviceAdd(%s, %s) failed: %v", peerid, device, err)
 		return nil, err
 	}
+	logger.Debug("DeviceAdd(%s, %s) successful", peerid, device)
 	var devices []deviceInfo
 	var info = new(executors.DeviceInfo)
 	if _, exist := dev.Metadata["_devices"]; exist {
@@ -78,12 +87,14 @@ func (g *executor) DeviceSetup(host, device, vgid string, destroy bool) (*execut
 			if device == d.Name {
 				info.ExtentSize = d.ExtentSize
 				info.TotalSize = d.AvailableSize
+				info.FreeSize = d.AvailableSize
 			}
 		}
 	}
 	if info == nil {
-		logger.LogError("failed to fetch device details")
-		return nil, errors.New("failed to fetch device details")
+		msg := "failed to fetch device details"
+		logger.LogError(msg)
+		return nil, errors.New(msg)
 	}
 	return info, nil
 }
