@@ -16,6 +16,7 @@ import (
 	"github.com/gluster/glusterd2/pkg/api"
 	"github.com/heketi/heketi/executors"
 	"github.com/lpabon/godbc"
+	"github.com/pkg/errors"
 )
 
 func (g *executor) prepareBrick(inSet int, brick []executors.BrickInfo) []api.BrickReq {
@@ -187,7 +188,7 @@ func (g *executor) VolumeDestroy(host string, volume string) error {
 	err = g.client.VolumeDelete(volume)
 	if err != nil {
 		logger.LogError("Unable to delete volume %v: %v", volume, err)
-		return logger.Err(fmt.Errorf("Unable to delete volume %v: %v", volume, err))
+		return logger.Err(errors.Errorf("Unable to delete volume %v: %v", volume, err))
 	}
 
 	return nil
@@ -200,7 +201,7 @@ func (g *executor) VolumeInfo(host string, volume string) (*executors.Volume, er
 	g.createClient(host)
 	volumes, err := g.client.Volumes(volume, nil)
 	if err != nil {
-		return nil, fmt.Errorf("Unable to get volume info of volume name: %v", volume)
+		return nil, errors.Errorf("Unable to get volume info of volume name: %v", volume)
 	}
 
 	//logger.Debug("%+v\n", volumeInfo)

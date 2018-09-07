@@ -10,7 +10,7 @@
 package executors
 
 import (
-	"errors"
+	"github.com/pkg/errors"
 )
 
 var (

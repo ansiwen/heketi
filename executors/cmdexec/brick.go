@@ -17,6 +17,7 @@ import (
 	"github.com/heketi/heketi/executors"
 	"github.com/heketi/heketi/pkg/utils"
 	"github.com/lpabon/godbc"
+	"github.com/pkg/errors"
 )
 
 func (s *CmdExecutor) BrickCreate(host string,
@@ -125,7 +126,7 @@ func (s *CmdExecutor) brickStorage(host string,
 	}
 	output, err := s.RemoteExecutor.RemoteCommandExecute(host, commands, 5)
 	if output == nil || err != nil {
-		return "", "", fmt.Errorf("No brick mounted on %v, unable to proceed with removing", brick.Path)
+		return "", "", errors.Errorf("No brick mounted on %v, unable to proceed with removing", brick.Path)
 	}
 	dev := output[0]
 	// detect the thinp LV used by this brick (in "vg_.../tp_..." format)
@@ -162,7 +163,7 @@ func (s *CmdExecutor) countThinLVsInPool(host, tp string) (int, error) {
 	}
 	thin_count, err := strconv.Atoi(strings.TrimSpace(output[0]))
 	if err != nil {
-		return 0, fmt.Errorf("Failed to convert number of logical volumes in thin pool %v on host %v: %v", tp, host, err)
+		return 0, errors.Errorf("Failed to convert number of logical volumes in thin pool %v on host %v: %v", tp, host, err)
 	}
 	return thin_count, nil
 }
@@ -246,7 +247,7 @@ func (s *CmdExecutor) BrickDestroy(host string,
 			thin_count = 0
 		} else {
 			logger.Err(err)
-			return spaceReclaimed, fmt.Errorf(
+			return spaceReclaimed, errors.Errorf(
 				"Unable to determine number of logical volumes in "+
 					"thin pool %v on host %v", tp, host)
 		}

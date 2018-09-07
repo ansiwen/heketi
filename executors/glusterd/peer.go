@@ -10,10 +10,9 @@
 package glusterd
 
 import (
-	"errors"
-
 	"github.com/gluster/glusterd2/pkg/api"
 	"github.com/lpabon/godbc"
+	"github.com/pkg/errors"
 )
 
 //TODO need to hanlde glusterd2 port also

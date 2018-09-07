@@ -10,9 +10,10 @@
 package utils
 
 import (
-	"errors"
 	"path"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 const (

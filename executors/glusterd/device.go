@@ -11,10 +11,10 @@ package glusterd
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 
 	"github.com/heketi/heketi/executors"
+	"github.com/pkg/errors"
 )
 
 // Read:

@@ -21,6 +21,7 @@ import (
 	"github.com/heketi/heketi/pkg/glusterfs/api"
 	"github.com/heketi/heketi/pkg/utils"
 	"github.com/lpabon/godbc"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -106,7 +107,7 @@ func (d *DeviceEntry) Register(tx *bolt.Tx) error {
 			return logger.Err(err)
 		}
 
-		return fmt.Errorf("Device %v is already used on node %v by device %v",
+		return errors.Errorf("Device %v is already used on node %v by device %v",
 			d.Info.Name,
 			d.NodeId,
 			conflictId)
@@ -229,11 +230,11 @@ func (d *DeviceEntry) stateCheck(s api.EntryState) error {
 		case api.EntryStateFailed:
 			return nil
 		case api.EntryStateOnline:
-			return fmt.Errorf("Cannot move a failed/removed device to online state")
+			return errors.Errorf("Cannot move a failed/removed device to online state")
 		case api.EntryStateOffline:
 			return nil
 		default:
-			return fmt.Errorf("Unknown state type: %v", s)
+			return errors.Errorf("Unknown state type: %v", s)
 		}
 
 	// Device is in enabled/online state
@@ -244,9 +245,9 @@ func (d *DeviceEntry) stateCheck(s api.EntryState) error {
 		case api.EntryStateOffline:
 			return nil
 		case api.EntryStateFailed:
-			return fmt.Errorf("Device must be offline before remove operation is performed, device:%v", d.Id())
+			return errors.Errorf("Device must be offline before remove operation is performed, device:%v", d.Id())
 		default:
-			return fmt.Errorf("Unknown state type: %v", s)
+			return errors.Errorf("Unknown state type: %v", s)
 		}
 
 	// Device is in disabled/offline state
@@ -259,7 +260,7 @@ func (d *DeviceEntry) stateCheck(s api.EntryState) error {
 		case api.EntryStateFailed:
 			return nil
 		default:
-			return fmt.Errorf("Unknown state type: %v", s)
+			return errors.Errorf("Unknown state type: %v", s)
 		}
 	}
 
@@ -450,7 +451,7 @@ func (d *DeviceEntry) Remove(db wdb.DB,
 func (d *DeviceEntry) removeBricksFromDevice(db wdb.DB,
 	executor executors.Executor) (e error) {
 
-	var errBrickWithEmptyPath error = fmt.Errorf("Brick has no path")
+	var errBrickWithEmptyPath error = errors.Errorf("Brick has no path")
 
 	for _, brickId := range d.Bricks {
 		var brickEntry *BrickEntry
@@ -482,7 +483,7 @@ func (d *DeviceEntry) removeBricksFromDevice(db wdb.DB,
 		logger.Info("Replacing brick %v on device %v on node %v", brickEntry.Id(), d.Id(), d.NodeId)
 		err = volumeEntry.replaceBrickInVolume(db, executor, brickEntry.Id())
 		if err != nil {
-			return logger.Err(fmt.Errorf("Failed to remove device, error: %v", err))
+			return logger.Err(errors.Errorf("Failed to remove device, error: %v", err))
 		}
 	}
 	return nil

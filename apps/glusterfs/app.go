@@ -9,8 +9,6 @@
 package glusterfs
 
 import (
-	"errors"
-	"fmt"
 	"net/http"
 	"os"
 	"strconv"
@@ -26,6 +24,7 @@ import (
 	"github.com/heketi/heketi/executors/stack"
 	"github.com/heketi/heketi/pkg/utils"
 	"github.com/heketi/rest"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -257,7 +256,7 @@ func SetLogLevel(level string) error {
 		// treat empty string as a no-op & don't complain
 		// about it
 	default:
-		return fmt.Errorf("invalid log level: %s", level)
+		return errors.Errorf("invalid log level: %s", level)
 	}
 	return nil
 }

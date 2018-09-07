@@ -10,13 +10,13 @@
 package cmdexec
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 
 	"github.com/heketi/heketi/executors"
 	"github.com/heketi/heketi/pkg/utils"
+	"github.com/pkg/errors"
 )
 
 const (

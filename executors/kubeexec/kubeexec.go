@@ -11,7 +11,6 @@ package kubeexec
 
 import (
 	"bytes"
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -28,6 +27,7 @@ import (
 	"github.com/heketi/heketi/pkg/kubernetes"
 	"github.com/heketi/heketi/pkg/utils"
 	"github.com/lpabon/godbc"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -145,7 +145,7 @@ func NewKubeExecutor(config *KubeConfig) (*KubeExecutor, error) {
 	k.kube, err = client.NewForConfig(k.kubeConfig)
 	if err != nil {
 		logger.Err(err)
-		return nil, fmt.Errorf("Unable to create a client set")
+		return nil, errors.Errorf("Unable to create a client set")
 	}
 
 	godbc.Ensure(k != nil)
@@ -225,7 +225,7 @@ func (k *KubeExecutor) ConnectAndExec(host, resource string,
 		exec, err := remotecommand.NewExecutor(k.kubeConfig, "POST", req.URL())
 		if err != nil {
 			logger.Err(err)
-			return nil, fmt.Errorf("Unable to setup a session with %v", podName)
+			return nil, errors.Errorf("Unable to setup a session with %v", podName)
 		}
 
 		// Create a buffer to trap session output
@@ -241,7 +241,7 @@ func (k *KubeExecutor) ConnectAndExec(host, resource string,
 		if err != nil {
 			logger.LogError("Failed to run command [%v] on %v: Err[%v]: Stdout [%v]: Stderr [%v]",
 				command, podName, err, b.String(), berr.String())
-			return nil, fmt.Errorf("%v", berr.String())
+			return nil, errors.Errorf("%v", berr.String())
 		}
 		logger.Debug("Host: %v Pod: %v Command: %v\nResult: %v", host, podName, command, b.String())
 		buffers[index] = b.String()
@@ -266,20 +266,20 @@ func (k *KubeExecutor) getPodNameByLabel(host string) (string, error) {
 	})
 	if err != nil {
 		logger.Err(err)
-		return "", fmt.Errorf("Failed to get list of pods")
+		return "", errors.Errorf("Failed to get list of pods")
 	}
 
 	numPods := len(pods.Items)
 	if numPods == 0 {
 		// No pods found with that label
-		err := fmt.Errorf("No pods with the label '%v=%v' were found",
+		err := errors.Errorf("No pods with the label '%v=%v' were found",
 			KubeGlusterFSPodLabelKey, host)
 		logger.Critical(err.Error())
 		return "", err
 
 	} else if numPods > 1 {
 		// There are more than one pod with the same label
-		err := fmt.Errorf("Found %v pods with the sharing the same label '%v=%v'",
+		err := errors.Errorf("Found %v pods with the sharing the same label '%v=%v'",
 			numPods, KubeGlusterFSPodLabelKey, host)
 		logger.Critical(err.Error())
 		return "", err

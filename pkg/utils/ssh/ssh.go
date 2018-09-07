@@ -11,8 +11,6 @@ package ssh
 
 import (
 	"bytes"
-	"errors"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net"
@@ -20,6 +18,7 @@ import (
 	"time"
 
 	"github.com/heketi/heketi/pkg/utils"
+	"github.com/pkg/errors"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/agent"
 )
@@ -168,7 +167,7 @@ func (s *SshExec) ConnectAndExec(host string, commands []string, timeoutMinutes 
 			if err != nil {
 				s.logger.LogError("Failed to run command [%v] on %v: Err[%v]: Stdout [%v]: Stderr [%v]",
 					command, host, err, b.String(), berr.String())
-				return nil, fmt.Errorf("%s", berr.String())
+				return nil, errors.Errorf("%s", berr.String())
 			}
 			s.logger.Debug("Host: %v Command: %v\nResult: %v", host, command, b.String())
 			buffers[index] = b.String()

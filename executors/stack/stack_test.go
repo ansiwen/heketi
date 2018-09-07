@@ -10,13 +10,12 @@
 package stack
 
 import (
-	"fmt"
 	"testing"
-
-	"github.com/heketi/tests"
 
 	"github.com/heketi/heketi/executors"
 	"github.com/heketi/heketi/executors/mockexec"
+	"github.com/heketi/tests"
+	"github.com/pkg/errors"
 )
 
 func TestNewExecutorStack(t *testing.T) {
@@ -46,7 +45,7 @@ func TestGlusterdCheck(t *testing.T) {
 	tests.Assert(t, err == nil, "expected err == nil, got:", err)
 
 	m1.MockGlusterdCheck = func(h string) error {
-		return fmt.Errorf("F1")
+		return errors.Errorf("F1")
 	}
 
 	err = es.GlusterdCheck("foo")
@@ -56,7 +55,7 @@ func TestGlusterdCheck(t *testing.T) {
 		return nil
 	}
 	m2.MockGlusterdCheck = func(h string) error {
-		return fmt.Errorf("F2")
+		return errors.Errorf("F2")
 	}
 
 	err = es.GlusterdCheck("foo")
@@ -87,7 +86,7 @@ func TestPeerProbe(t *testing.T) {
 	tests.Assert(t, err == nil, "expected err == nil, got:", err)
 
 	m2.MockPeerProbe = func(h, n string) error {
-		return fmt.Errorf("E2")
+		return errors.Errorf("E2")
 	}
 
 	err = es.PeerProbe("foo", "bar")
@@ -118,7 +117,7 @@ func TestPeerDetach(t *testing.T) {
 	tests.Assert(t, err == nil, "expected err == nil, got:", err)
 
 	m2.MockPeerDetach = func(h, n string) error {
-		return fmt.Errorf("E2")
+		return errors.Errorf("E2")
 	}
 
 	err = es.PeerDetach("foo", "bar")
@@ -149,7 +148,7 @@ func TestDeviceSetup(t *testing.T) {
 	tests.Assert(t, err == nil, "expected err == nil, got:", err)
 
 	m2.MockDeviceSetup = func(h, n, v string, b bool) (*executors.DeviceInfo, error) {
-		return nil, fmt.Errorf("E2")
+		return nil, errors.Errorf("E2")
 	}
 
 	_, err = es.DeviceSetup("foo", "bar", "v", false)
@@ -180,7 +179,7 @@ func TestGetDeviceInfo(t *testing.T) {
 	tests.Assert(t, err == nil, "expected err == nil, got:", err)
 
 	m2.MockDeviceSetup = func(h, n, v string, b bool) (*executors.DeviceInfo, error) {
-		return nil, fmt.Errorf("E2")
+		return nil, errors.Errorf("E2")
 	}
 
 	_, err = es.GetDeviceInfo("foo", "bar", "v")
@@ -211,7 +210,7 @@ func TestDeviceTeardown(t *testing.T) {
 	tests.Assert(t, err == nil, "expected err == nil, got:", err)
 
 	m2.MockDeviceTeardown = func(h, n, v string) error {
-		return fmt.Errorf("E2")
+		return errors.Errorf("E2")
 	}
 
 	err = es.DeviceTeardown("foo", "bar", "v")
@@ -244,7 +243,7 @@ func TestBrickCreate(t *testing.T) {
 	tests.Assert(t, err == nil, "expected err == nil, got:", err)
 
 	m2.MockBrickCreate = func(host string, brick *executors.BrickRequest) (*executors.BrickInfo, error) {
-		return nil, fmt.Errorf("E2")
+		return nil, errors.Errorf("E2")
 	}
 
 	_, err = es.BrickCreate("foo", br)
@@ -277,7 +276,7 @@ func TestBrickDestroy(t *testing.T) {
 	tests.Assert(t, err == nil, "expected err == nil, got:", err)
 
 	m2.MockBrickDestroy = func(host string, brick *executors.BrickRequest) (bool, error) {
-		return false, fmt.Errorf("E2")
+		return false, errors.Errorf("E2")
 	}
 
 	_, err = es.BrickDestroy("foo", br)
@@ -310,7 +309,7 @@ func TestBrickDestroy(t *testing.T) {
 // 	tests.Assert(t, err == nil, "expected err == nil, got:", err)
 
 // 	m2.MockBrickDestroyCheck = func(host string, brick *executors.BrickRequest) error {
-// 		return fmt.Errorf("E2")
+// 		return errors.Errorf("E2")
 // 	}
 
 // 	err = es.BrickDestroyCheck("foo", br)
@@ -343,7 +342,7 @@ func TestVolumeCreate(t *testing.T) {
 	tests.Assert(t, err == nil, "expected err == nil, got:", err)
 
 	m2.MockVolumeCreate = func(host string, brick *executors.VolumeRequest) (*executors.Volume, error) {
-		return nil, fmt.Errorf("E2")
+		return nil, errors.Errorf("E2")
 	}
 
 	_, err = es.VolumeCreate("foo", br)
@@ -374,7 +373,7 @@ func TestVolumeDestroy(t *testing.T) {
 	tests.Assert(t, err == nil, "expected err == nil, got:", err)
 
 	m2.MockVolumeDestroy = func(h, v string) error {
-		return fmt.Errorf("E2")
+		return errors.Errorf("E2")
 	}
 
 	err = es.VolumeDestroy("foo", "v")
@@ -405,7 +404,7 @@ func TestVolumeDestroyCheck(t *testing.T) {
 	tests.Assert(t, err == nil, "expected err == nil, got:", err)
 
 	m2.MockVolumeDestroyCheck = func(h, v string) error {
-		return fmt.Errorf("E2")
+		return errors.Errorf("E2")
 	}
 
 	err = es.VolumeDestroyCheck("foo", "v")
