@@ -22,15 +22,6 @@ const (
 	VOLUME_MAX_RETRIES int = 4
 )
 
-type OperationRetryError struct {
-	OriginalError error
-}
-
-func (ore OperationRetryError) Error() string {
-	return fmt.Sprintf("Operation Should Be Retried; Error: %v",
-		ore.OriginalError.Error())
-}
-
 // The operations.go file is meant to provide a common approach to planning,
 // executing, and completing changes to the storage clusters under heketi
 // management as well as accurately reflecting these changes in the heketi db.
@@ -174,7 +165,7 @@ func (vc *VolumeCreateOperation) Exec(executor executors.Executor) error {
 	err = vc.vol.createVolumeExec(vc.db, executor, brick_entries)
 	if err != nil {
 		logger.LogError("Error executing create volume: %v", err)
-		return OperationRetryError{err}
+		return NewRetryError(err)
 	}
 	return nil
 }

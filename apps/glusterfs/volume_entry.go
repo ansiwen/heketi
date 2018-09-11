@@ -462,7 +462,8 @@ func (v *VolumeEntry) tryAllocateBricks(
 	// if our last attempt failed and we collected at least one error
 	// return the short form all the errors we collected
 	if err != nil && cerr.Len() > 0 {
-		err = cerr.Shorten()
+		// since the collected errors are sentinel errors, we add a stack trace
+		err = errors.WithStack(cerr.Shorten())
 	}
 	return
 }
