@@ -15,7 +15,7 @@
 package client_tls_test
 
 import (
-	"errors"
+	"github.com/pkg/errors"
 	"os"
 	"os/exec"
 	"path"

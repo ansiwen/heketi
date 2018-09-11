@@ -17,6 +17,7 @@ import (
 	"github.com/heketi/heketi/executors"
 	"github.com/heketi/heketi/pkg/utils"
 	"github.com/lpabon/godbc"
+	"github.com/pkg/errors"
 )
 
 func (s *CmdExecutor) VolumeCreate(host string,
@@ -151,7 +152,7 @@ func (s *CmdExecutor) VolumeDestroy(host string, volume string) error {
 
 	_, err = s.RemoteExecutor.RemoteCommandExecute(host, commands, 10)
 	if err != nil {
-		return logger.Err(fmt.Errorf("Unable to delete volume %v: %v", volume, err))
+		return logger.Err(errors.Errorf("Unable to delete volume %v: %v", volume, err))
 	}
 
 	return nil
@@ -228,13 +229,13 @@ func (s *CmdExecutor) checkForSnapshots(host, volume string) error {
 
 	output, err := s.RemoteExecutor.RemoteCommandExecute(host, commands, 10)
 	if err != nil {
-		return fmt.Errorf("Unable to get snapshot information from volume %v: %v", volume, err)
+		return errors.Errorf("Unable to get snapshot information from volume %v: %v", volume, err)
 	}
 
 	var snapInfo CliOutput
 	err = xml.Unmarshal([]byte(output[0]), &snapInfo)
 	if err != nil {
-		return fmt.Errorf("Unable to determine snapshot information from volume %v: %v", volume, err)
+		return errors.Errorf("Unable to determine snapshot information from volume %v: %v", volume, err)
 	}
 
 	if strings.Contains(snapInfo.OpErrStr, "does not exist") &&
@@ -243,7 +244,7 @@ func (s *CmdExecutor) checkForSnapshots(host, volume string) error {
 	}
 
 	if snapInfo.SnapList.Count > 0 {
-		return fmt.Errorf("Unable to delete volume %v because it contains %v snapshots",
+		return errors.Errorf("Unable to delete volume %v because it contains %v snapshots",
 			volume, snapInfo.SnapList.Count)
 	}
 
@@ -269,12 +270,12 @@ func (s *CmdExecutor) VolumeInfo(host string, volume string) (*executors.Volume,
 	//Get the xml output of volume info
 	output, err := s.RemoteExecutor.RemoteCommandExecute(host, command, 10)
 	if err != nil {
-		return nil, fmt.Errorf("Unable to get volume info of volume name: %v", volume)
+		return nil, errors.Errorf("Unable to get volume info of volume name: %v", volume)
 	}
 	var volumeInfo CliOutput
 	err = xml.Unmarshal([]byte(output[0]), &volumeInfo)
 	if err != nil {
-		return nil, fmt.Errorf("Unable to determine volume info of volume name: %v", volume)
+		return nil, errors.Errorf("Unable to determine volume info of volume name: %v", volume)
 	}
 	logger.Debug("%+v\n", volumeInfo)
 	return &volumeInfo.VolInfo.Volumes.VolumeList[0], nil
@@ -292,7 +293,7 @@ func (s *CmdExecutor) VolumeReplaceBrick(host string, volume string, oldBrick *e
 	}
 	_, err := s.RemoteExecutor.RemoteCommandExecute(host, command, 10)
 	if err != nil {
-		return logger.Err(fmt.Errorf("Unable to replace brick %v:%v with %v:%v for volume %v", oldBrick.Host, oldBrick.Path, newBrick.Host, newBrick.Path, volume))
+		return logger.Err(errors.Errorf("Unable to replace brick %v:%v with %v:%v for volume %v", oldBrick.Host, oldBrick.Path, newBrick.Host, newBrick.Path, volume))
 	}
 
 	return nil
@@ -347,18 +348,18 @@ func (s *CmdExecutor) VolumeSnapshot(host string, vsr *executors.VolumeSnapshotR
 
 	output, err := s.RemoteExecutor.RemoteCommandExecute(host, command, 10)
 	if err != nil {
-		return nil, fmt.Errorf("Unable to create snapshot of volume %v: %v", vsr.Volume, err)
+		return nil, errors.Errorf("Unable to create snapshot of volume %v: %v", vsr.Volume, err)
 	}
 
 	var snapCreate CliOutput
 	err = xml.Unmarshal([]byte(output[0]), &snapCreate)
 	if err != nil {
-		return nil, fmt.Errorf("Unable to parse output of creating snapshot of volume %v: %v", vsr.Volume, err)
+		return nil, errors.Errorf("Unable to parse output of creating snapshot of volume %v: %v", vsr.Volume, err)
 	}
 	logger.Debug("snapCreate: %+v\n", snapCreate)
 
 	if snapCreate.OpRet != 0 {
-		return nil, fmt.Errorf("Failed to create snapshot of volume %v: %v", vsr.Volume, snapCreate.OpErrStr)
+		return nil, errors.Errorf("Failed to create snapshot of volume %v: %v", vsr.Volume, snapCreate.OpErrStr)
 	}
 
 	snap := &snapCreate.SnapCreate.Snapshot
@@ -385,12 +386,12 @@ func (s *CmdExecutor) HealInfo(host string, volume string) (*executors.HealInfo,
 
 	output, err := s.RemoteExecutor.RemoteCommandExecute(host, command, 10)
 	if err != nil {
-		return nil, fmt.Errorf("Unable to get heal info of volume : %v", volume)
+		return nil, errors.Errorf("Unable to get heal info of volume : %v", volume)
 	}
 	var healInfo CliOutput
 	err = xml.Unmarshal([]byte(output[0]), &healInfo)
 	if err != nil {
-		return nil, fmt.Errorf("Unable to determine heal info of volume : %v", volume)
+		return nil, errors.Errorf("Unable to determine heal info of volume : %v", volume)
 	}
 	logger.Debug("%+v\n", healInfo)
 	return &healInfo.HealInfo, nil

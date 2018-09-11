@@ -11,12 +11,12 @@ package utils
 
 import (
 	"bytes"
-	"errors"
 	"io"
 	"net/http"
 	"testing"
 
 	"github.com/heketi/tests"
+	"github.com/pkg/errors"
 )
 
 type testDest struct {

@@ -12,7 +12,6 @@ package glusterfs
 import (
 	"bytes"
 	"encoding/gob"
-	"errors"
 	"fmt"
 	"sort"
 	"strconv"
@@ -25,6 +24,7 @@ import (
 	"github.com/heketi/heketi/pkg/paths"
 	"github.com/heketi/heketi/pkg/utils"
 	"github.com/lpabon/godbc"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -328,11 +328,11 @@ func (v *VolumeEntry) ModifyFreeSize(delta int) error {
 		v.Info.BlockInfo.FreeSize, delta)
 	v.Info.BlockInfo.FreeSize += delta
 	if v.Info.BlockInfo.FreeSize < 0 {
-		return logger.Err(fmt.Errorf(
+		return logger.Err(errors.Errorf(
 			"Volume %v free size may not be set less than zero", v.Info.Id))
 	}
 	if v.Info.BlockInfo.FreeSize+v.Info.BlockInfo.ReservedSize > v.Info.Size {
-		return logger.Err(fmt.Errorf(
+		return logger.Err(errors.Errorf(
 			"Volume %v free size may not be set greater than %v",
 			v.Info.Id, v.Info.Size))
 	}
@@ -344,11 +344,11 @@ func (v *VolumeEntry) ModifyReservedSize(delta int) error {
 		v.Info.BlockInfo.ReservedSize, delta)
 	v.Info.BlockInfo.ReservedSize += delta
 	if v.Info.BlockInfo.ReservedSize < 0 {
-		return logger.Err(fmt.Errorf(
+		return logger.Err(errors.Errorf(
 			"Volume %v reserved size may not be set less than zero", v.Info.Id))
 	}
 	if v.Info.BlockInfo.ReservedSize+v.Info.BlockInfo.FreeSize > v.Info.Size {
-		return logger.Err(fmt.Errorf(
+		return logger.Err(errors.Errorf(
 			"Volume %v reserved size may not be set greater than %v",
 			v.Info.Id, v.Info.Size))
 	}
@@ -390,7 +390,7 @@ func (v *VolumeEntry) SetRawCapacity(delta int) error {
 // volumes in the db to calculate the total.
 func (v *VolumeEntry) TotalSizeBlockVolumes(tx *bolt.Tx) (int, error) {
 	if !v.Info.Block {
-		return 0, fmt.Errorf(
+		return 0, errors.Errorf(
 			"Volume %v is not a block hosting volume", v.Info.Id)
 	}
 	bvsum := 0
@@ -488,7 +488,7 @@ func (v *VolumeEntry) cleanupCreateVolume(db wdb.DB,
 	})
 	if err != nil {
 		logger.LogError("failed to delete volume in cleanup: %v", err)
-		return fmt.Errorf("failed to clean up volume: %v", v.Info.Id)
+		return errors.Errorf("failed to clean up volume: %v", v.Info.Id)
 	}
 
 	// from a quick read its "safe" to unconditionally try to delete
@@ -735,7 +735,7 @@ func (v *VolumeEntry) manageHostFromBricks(db wdb.DB,
 			sshhost = node.ManageHostName()
 			return nil
 		}
-		return fmt.Errorf("Unable to get management host from bricks")
+		return errors.Errorf("Unable to get management host from bricks")
 	})
 	return
 }
@@ -1013,7 +1013,7 @@ func (v *VolumeEntry) runOnHost(db wdb.RODB,
 			return err
 		}
 	}
-	return fmt.Errorf("no hosts available (%v total)", len(hosts))
+	return errors.Errorf("no hosts available (%v total)", len(hosts))
 }
 
 func (v *VolumeEntry) prepareVolumeClone(tx *bolt.Tx, clonename string) (
@@ -1055,7 +1055,7 @@ func updateCloneBrickPaths(bricks []*BrickEntry,
 		pathIndex[brick.Info.Path] = i
 	}
 	if len(pathIndex) != len(bricks) {
-		return fmt.Errorf(
+		return errors.Errorf(
 			"Unexpected number of brick paths. %v unique paths, %v bricks",
 			len(pathIndex), len(bricks))
 	}
@@ -1067,7 +1067,7 @@ func updateCloneBrickPaths(bricks []*BrickEntry,
 
 		bidx, ok := pathIndex[origPath]
 		if !ok {
-			return fmt.Errorf(
+			return errors.Errorf(
 				"Failed to find brick path %v in known brick paths",
 				origPath)
 		}

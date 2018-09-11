@@ -13,10 +13,10 @@ import (
 	"fmt"
 
 	"github.com/boltdb/bolt"
-	"github.com/lpabon/godbc"
-
 	wdb "github.com/heketi/heketi/pkg/db"
 	"github.com/heketi/heketi/pkg/utils"
+	"github.com/lpabon/godbc"
+	"github.com/pkg/errors"
 )
 
 type BrickSet struct {
@@ -49,7 +49,7 @@ func (bs *BrickSet) Add(b *BrickEntry) {
 func (bs *BrickSet) Insert(index int, b *BrickEntry) {
 	switch {
 	case index >= bs.SetSize:
-		panic(fmt.Errorf("Insert index (%v) out of bounds", index))
+		panic(errors.Errorf("Insert index (%v) out of bounds", index))
 	case index == len(bs.Bricks):
 		// we grow the bricks slice by one item
 		bs.Bricks = append(bs.Bricks, b)
@@ -57,7 +57,7 @@ func (bs *BrickSet) Insert(index int, b *BrickEntry) {
 		// we replace an existing item
 		bs.Bricks[index] = b
 	default:
-		panic(fmt.Errorf(
+		panic(errors.Errorf(
 			"Brick set may only be extended one (index=%v, len=%v)",
 			index, len(bs.Bricks)))
 	}
@@ -137,7 +137,7 @@ func (ds *DeviceSet) Add(d *DeviceEntry) {
 func (ds *DeviceSet) Insert(index int, d *DeviceEntry) {
 	switch {
 	case index >= ds.SetSize:
-		panic(fmt.Errorf("Insert index (%v) out of bounds", index))
+		panic(errors.Errorf("Insert index (%v) out of bounds", index))
 	case index == len(ds.Devices):
 		// we grow the bricks slice by one item
 		ds.Devices = append(ds.Devices, d)
@@ -145,7 +145,7 @@ func (ds *DeviceSet) Insert(index int, d *DeviceEntry) {
 		// we replace an existing item
 		ds.Devices[index] = d
 	default:
-		panic(fmt.Errorf(
+		panic(errors.Errorf(
 			"Brick set may only be extended one (index=%v, len=%v)",
 			index, len(ds.Devices)))
 	}
@@ -485,7 +485,7 @@ func (bp *StandardBrickPlacer) Replace(
 	*BrickAllocation, error) {
 
 	if index < 0 || index >= bs.SetSize {
-		return nil, fmt.Errorf(
+		return nil, errors.Errorf(
 			"brick replace index out of bounds (got %v, set size %v)",
 			index, bs.SetSize)
 	}

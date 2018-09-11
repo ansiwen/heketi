@@ -11,11 +11,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/boltdb/bolt"
 	"github.com/heketi/heketi/executors"
 	"github.com/heketi/heketi/pkg/glusterfs/api"
-
-	"github.com/boltdb/bolt"
 	"github.com/heketi/tests"
+	"github.com/pkg/errors"
 
 	"github.com/gorilla/mux"
 )
@@ -259,7 +259,7 @@ func TestVolumeCreateRollbackCleanupFailure(t *testing.T) {
 	// error condition into VolumeDestroy
 
 	app.xo.MockVolumeDestroy = func(host string, volume string) error {
-		return fmt.Errorf("fake error")
+		return errors.Errorf("fake error")
 	}
 
 	e = vc.Rollback(app.executor)
@@ -500,7 +500,7 @@ func TestVolumeCreateOperationRetrying(t *testing.T) {
 		if brickCreates[host] > 1 {
 			return bCreate(host, brick)
 		}
-		return nil, fmt.Errorf("FAKE ERR")
+		return nil, errors.Errorf("FAKE ERR")
 	}
 
 	vc.maxRetries = 10
@@ -2251,7 +2251,7 @@ func TestAsyncHttpOperationBuildFailure(t *testing.T) {
 	o := &testOperation{}
 	o.rurl = "/myresource"
 	o.build = func() error {
-		return fmt.Errorf("buildfail")
+		return errors.Errorf("buildfail")
 	}
 	testAsyncHttpOperation(t, o, func(t *testing.T, url string) {
 		client := &http.Client{
@@ -2269,7 +2269,7 @@ func TestAsyncHttpOperationExecFailure(t *testing.T) {
 	o := &testOperation{}
 	o.rurl = "/myresource"
 	o.exec = func() error {
-		return fmt.Errorf("execfail")
+		return errors.Errorf("execfail")
 	}
 	testAsyncHttpOperation(t, o, func(t *testing.T, url string) {
 		client := &http.Client{
@@ -2317,12 +2317,12 @@ func TestAsyncHttpOperationRollbackFailure(t *testing.T) {
 	o := &testOperation{}
 	o.rurl = "/myresource"
 	o.exec = func() error {
-		return fmt.Errorf("execfail")
+		return errors.Errorf("execfail")
 	}
 	rollback_cc := 0
 	o.rollback = func() error {
 		rollback_cc++
-		return fmt.Errorf("rollbackfail")
+		return errors.Errorf("rollbackfail")
 	}
 	testAsyncHttpOperation(t, o, func(t *testing.T, url string) {
 		client := &http.Client{
@@ -2371,7 +2371,7 @@ func TestAsyncHttpOperationFinalizeFailure(t *testing.T) {
 	o := &testOperation{}
 	o.rurl = "/myresource"
 	o.finalize = func() error {
-		return fmt.Errorf("finfail")
+		return errors.Errorf("finfail")
 	}
 	testAsyncHttpOperation(t, o, func(t *testing.T, url string) {
 		client := &http.Client{
@@ -2453,12 +2453,12 @@ func TestRunOperationRollbackFailure(t *testing.T) {
 	o := &testOperation{}
 	o.rurl = "/myresource"
 	o.exec = func() error {
-		return fmt.Errorf("execfail")
+		return errors.Errorf("execfail")
 	}
 	rollback_cc := 0
 	o.rollback = func() error {
 		rollback_cc++
-		return fmt.Errorf("rollbackfail")
+		return errors.Errorf("rollbackfail")
 	}
 	e := RunOperation(o, app.executor)
 	// even if rollback fails we expect the error from Exec
@@ -2478,7 +2478,7 @@ func TestRunOperationFinalizeFailure(t *testing.T) {
 	o.label = "Funky Fresh"
 	o.rurl = "/myresource"
 	o.finalize = func() error {
-		return fmt.Errorf("finfail")
+		return errors.Errorf("finfail")
 	}
 
 	e := RunOperation(o, app.executor)
@@ -2497,7 +2497,7 @@ func TestRunOperationExecRetryError(t *testing.T) {
 	o.retryMax = 4
 	o.exec = func() error {
 		return OperationRetryError{
-			OriginalError: fmt.Errorf("foobar"),
+			OriginalError: errors.Errorf("foobar"),
 		}
 	}
 	rollback_cc := 0
@@ -2525,13 +2525,13 @@ func TestRunOperationExecRetryRollbackFail(t *testing.T) {
 	o.retryMax = 4
 	o.exec = func() error {
 		return OperationRetryError{
-			OriginalError: fmt.Errorf("foobar"),
+			OriginalError: errors.Errorf("foobar"),
 		}
 	}
 	rollback_cc := 0
 	o.rollback = func() error {
 		rollback_cc++
-		return fmt.Errorf("rollbackfail")
+		return errors.Errorf("rollbackfail")
 	}
 	build_cc := 0
 	o.build = func() error {
@@ -2560,7 +2560,7 @@ func TestRunOperationExecRetryThenBuildFail(t *testing.T) {
 	o.retryMax = 4
 	o.exec = func() error {
 		return OperationRetryError{
-			OriginalError: fmt.Errorf("foobar"),
+			OriginalError: errors.Errorf("foobar"),
 		}
 	}
 	rollback_cc := 0
@@ -2572,7 +2572,7 @@ func TestRunOperationExecRetryThenBuildFail(t *testing.T) {
 	o.build = func() error {
 		build_cc++
 		if build_cc > 1 {
-			return fmt.Errorf("buildfail")
+			return errors.Errorf("buildfail")
 		}
 		return nil
 	}
@@ -2603,7 +2603,7 @@ func TestRunOperationExecRetryThenSucceed(t *testing.T) {
 			return nil
 		}
 		return OperationRetryError{
-			OriginalError: fmt.Errorf("foobar"),
+			OriginalError: errors.Errorf("foobar"),
 		}
 	}
 	rollback_cc := 0
@@ -2630,10 +2630,10 @@ func TestRunOperationExecRetryThenNonRetryError(t *testing.T) {
 	o.exec = func() error {
 		exec_cc++
 		if exec_cc > 2 {
-			return fmt.Errorf("execfail")
+			return errors.Errorf("execfail")
 		}
 		return OperationRetryError{
-			OriginalError: fmt.Errorf("foobar"),
+			OriginalError: errors.Errorf("foobar"),
 		}
 	}
 	rollback_cc := 0
@@ -2978,7 +2978,7 @@ func TestBlockVolumeCreateRollbackCleanupFailure(t *testing.T) {
 	// now we're going to pretend exec failed and inject an
 	// error condition into BlockVolumeDestroy
 	app.xo.MockBlockVolumeDestroy = func(host, bhv, volume string) error {
-		return fmt.Errorf("fake error")
+		return errors.Errorf("fake error")
 	}
 
 	e = vc.Rollback(app.executor)
@@ -3259,7 +3259,7 @@ func TestBlockVolumeCreateInsufficientHosts(t *testing.T) {
 			zapHosts[host] = true
 		}
 		if zapHosts[host] {
-			return fmt.Errorf("you shall not pass")
+			return errors.Errorf("you shall not pass")
 		}
 		return nil
 	}
